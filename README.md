@@ -103,6 +103,13 @@ Thanks to Kevin's open-source architecture, custom Crazyflie firmware modificati
 
 ---
 
+## Author
+Alejandro Mojarras - mojarrasalejandro@gmail.com
+
+Project developed for the technical advancement and benefit of the **DroneOps** student group at **Tecnológico de Monterrey (ITESM), Campus Guadalajara**.
+
+---
+
 ## Official Documentation Links
 
 - [Bitcraze Official Website](https://www.bitcraze.io/)
