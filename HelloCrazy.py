@@ -8,7 +8,7 @@ import time
 import cflib.crtp
 from cflib.crazyflie import Crazyflie
 from cflib.crazyflie.syncCrazyflie import SyncCrazyflie
-from config import URI
+from config import URI, get_uri
 
 
 def test_motors(scf):
@@ -56,6 +56,7 @@ if __name__ == "__main__":
     # Initialize the low-level drivers
     cflib.crtp.init_drivers()
 
-    print(f"Connecting to {URI}...")
-    with SyncCrazyflie(URI, cf=Crazyflie(rw_cache="./cache")) as scf:
+    uri = get_uri()
+    print(f"Connecting to {uri}...")
+    with SyncCrazyflie(uri, cf=Crazyflie(rw_cache="./cache")) as scf:
         test_motors(scf)

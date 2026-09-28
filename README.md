@@ -21,61 +21,117 @@ See the [Bitcraze USB Permissions Guide](https://www.bitcraze.io/documentation/r
 
 ---
 
-## Configuration (`config.py`)
+## Configuration & Radio URI (`config.py`)
 
-All scripts in this repository share a single configuration file ([config.py](config.py)) that defines the Crazyflie radio URI.
+All scripts in this repository resolve the Crazyflie connection URI through a unified configuration file ([config.py](config.py)).
 
-The URI follows this format:
+### Radio URI Structure
 ```
 radio://<radio_interface>/<radio_channel>/<radio_bandwidth>/<crazyflie_address>
 ```
+- **radio_interface**: The Crazyradio dongle index (`0`).
+- **radio_channel**: Frequency channel (default: `80`).
+- **radio_bandwidth**: Transmission datarate (`2M`, `1M`, or `250K`).
+- **crazyflie_address**: 5-byte hex address (`E7E7E7E7E7`).
 
-- **radio_interface**: The Crazyradio dongle index (typically `0`).
-- **radio_channel**: The radio frequency channel (e.g., `80`).
-- **radio_bandwidth**: The transmission datarate (`250K`, `1M`, or `2M`).
-- **crazyflie_address**: The 5-byte hex address of the Crazyflie (e.g., `E7E7E7E7E7`).
+**Default URI**: `radio://0/80/2M/E7E7E7E7E7` (Channel 80).
 
-You can edit `URI` directly in `config.py`, or override it without modifying code via the `CRAZYFLIE_URI` environment variable:
+---
+
+### How to Change the URI (Multiple Intuitive Ways)
+
+You can choose whichever method best fits your workflow:
+
+#### 1. Command-Line Argument (Fastest & Most Intuitive)
+You do not need to edit any code or set environment variables. Pass the URI or just the channel number directly when executing any script:
+
+- **Pass only the channel** (keeps default address `E7E7E7E7E7` and datarate `2M`):
+  ```bash
+  python HelloCrazy.py 90
+  ```
+- **Pass the full URI**:
+  ```bash
+  python HelloCrazy.py radio://0/90/2M/E7E7E7E7E7
+  ```
+- **Using optional flags**:
+  ```bash
+  python HelloCrazy.py --channel 90
+  python HelloCrazy.py --uri radio://0/90/2M/E7E7E7E7E7
+  ```
+
+#### 2. Auto-Detect via Scanner (`scan.py`)
+If you do not know which channel or address your Crazyflie is using, run our lightweight scanner:
 ```bash
-export CRAZYFLIE_URI="radio://0/80/2M/E7E7E7E7E7"
+python scan.py
+```
+This scans all 2.4 GHz channels and lists all discovered Crazyflies along with their exact URIs and ready-to-run commands.
+
+#### 3. Edit `config.py` Directly
+If you prefer a permanent default for your setup, open [config.py](config.py) and simply edit the parameters:
+```python
+RADIO_CHANNEL = 80          # Change to your drone's channel (e.g. 90)
+CRAZYFLIE_ADDRESS = "E7E7E7E7E7"
+RADIO_INTERFACE = 0
+RADIO_DATARATE = "2M"
 ```
 
-### Checking Your Crazyflie Address & Channel via `cfclient`
-If you do not know which address, channel, or datarate your Crazyflie is configured with, you can scan and inspect it using the official graphical client **`cfclient`** (Crazyflie PC Client):
+#### 4. Environment Variables
+You can also override the URI across an entire shell session:
+```bash
+# By full URI (both variable names are supported)
+export CRAZYFLIE_URI="radio://0/90/2M/E7E7E7E7E7"
+# or
+export CFLIB_URI="radio://0/90/2M/E7E7E7E7E7"
 
-- **Installation Guide**: [Install cfclient documentation](https://www.bitcraze.io/documentation/repository/crazyflie-clients-python/master/installation/install/)
-- **Quick Install**:
-  ```bash
-  pip install cfclient
-  ```
-- Once installed, launch the GUI (`cfclient`), click **Scan** to locate your drone over the Crazyradio, or connect the Crazyflie via a micro-USB cable and open **Connect -> Configure 2.X** to view and modify its radio address and channel.
+# Or by channel number only:
+export CRAZYFLIE_CHANNEL=90
+```
+
+#### 5. Inspecting via `cfclient` GUI (Alternative)
+You can also view or reconfigure your drone's channel and address using the official Bitcraze client:
+```bash
+pip install cfclient
+cfclient
+```
+Connect the Crazyflie via micro-USB and open **Connect -> Configure 2.X**.
 
 ---
 
 ## Scripts Description
 
-### 1. [HelloCrazy.py](HelloCrazy.py)
+### 1. [scan.py](scan.py)
+Scans 2.4 GHz radio channels using the Crazyradio dongle and automatically discovers all active Crazyflies nearby. It prints their full URIs, channel numbers, and copy-paste commands to test them immediately without needing `cfclient`.
+
+```bash
+python scan.py
+```
+
+### 2. [HelloCrazy.py](HelloCrazy.py)
 Tests basic communication with the Crazyflie. After establishing a synchronous connection (`SyncCrazyflie`), it sequentially spins each motor individually (M1 through M4) at low PWM power using the `motorPowerSet` parameter group, printing which motor is currently spinning in the terminal to provide physical feedback, then safely disconnects.
 
 ```bash
+# Using default channel 80:
 python HelloCrazy.py
+
+# Or targeting a specific channel:
+python HelloCrazy.py 90
 ```
 
-### 2. [check_battery.py](check_battery.py)
+### 3. [check_battery.py](check_battery.py)
 Connects and reads the current battery voltage (`pm.vbat`) using the `SyncLogger` framework. It calculates and prints the battery percentage (based on a 1-cell LiPo curve: 3.3 V empty to 4.2 V full) and issues a warning if the voltage drops below the critical 3.4 V safety threshold.
 
 ```bash
 python check_battery.py
 ```
 
-### 3. [LoggerCrazy.py](LoggerCrazy.py)
+### 4. [LoggerCrazy.py](LoggerCrazy.py)
 Streams real-time IMU stabilization variables (`stabilizer.roll`, `stabilizer.pitch`, `stabilizer.yaw`). Data is formatted in an organized tabular view rounded to 2 decimal places and displayed every 2 seconds (`period_in_ms=2000`).
 
 ```bash
 python LoggerCrazy.py
 ```
 
-### 4. [bruteForce_takeoff.py](bruteForce_takeoff.py)
+### 5. [bruteForce_takeoff.py](bruteForce_takeoff.py)
 Performs an open-loop thrust setpoint test.
 
 > **CRITICAL SAFETY WARNINGS**:

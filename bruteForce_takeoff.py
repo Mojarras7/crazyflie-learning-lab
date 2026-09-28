@@ -25,7 +25,7 @@ import time
 import cflib.crtp
 from cflib.crazyflie import Crazyflie
 from cflib.crazyflie.syncCrazyflie import SyncCrazyflie
-from config import URI
+from config import URI, get_uri
 
 # Conservative hover thrust range: 30000 - 45000.
 # WARNING: NEVER set to maximum (65535)!
@@ -57,6 +57,7 @@ if __name__ == "__main__":
     # Initialize the low-level drivers
     cflib.crtp.init_drivers()
 
-    print(f"Connecting to {URI}...")
-    with SyncCrazyflie(URI, cf=Crazyflie(rw_cache="./cache")) as scf:
+    uri = get_uri()
+    print(f"Connecting to {uri}...")
+    with SyncCrazyflie(uri, cf=Crazyflie(rw_cache="./cache")) as scf:
         brute_force_takeoff(scf)

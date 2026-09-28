@@ -7,7 +7,7 @@ from cflib.crazyflie import Crazyflie
 from cflib.crazyflie.log import LogConfig
 from cflib.crazyflie.syncCrazyflie import SyncCrazyflie
 from cflib.crazyflie.syncLogger import SyncLogger
-from config import URI
+from config import URI, get_uri
 
 
 def calculate_battery_percentage(vbat):
@@ -51,9 +51,10 @@ if __name__ == "__main__":
     print("Initializing drivers...")
     cflib.crtp.init_drivers()
 
-    print(f"Connecting to {URI}...")
+    uri = get_uri()
+    print(f"Connecting to {uri}...")
     try:
-        with SyncCrazyflie(URI, cf=Crazyflie(rw_cache="./cache")) as scf:
+        with SyncCrazyflie(uri, cf=Crazyflie(rw_cache="./cache")) as scf:
             get_battery_voltage(scf)
     except Exception as e:
         print(f"Error connecting or reading battery: {e}")

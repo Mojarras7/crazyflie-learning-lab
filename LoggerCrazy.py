@@ -10,7 +10,7 @@ from cflib.crazyflie import Crazyflie
 from cflib.crazyflie.log import LogConfig
 from cflib.crazyflie.syncCrazyflie import SyncCrazyflie
 from cflib.crazyflie.syncLogger import SyncLogger
-from config import URI
+from config import URI, get_uri
 
 # Only output errors from the logging framework
 logging.basicConfig(level=logging.ERROR)
@@ -45,6 +45,7 @@ if __name__ == "__main__":
     lg_stab.add_variable("stabilizer.pitch", "float")
     lg_stab.add_variable("stabilizer.yaw", "float")
 
-    print(f"Connecting to {URI}...")
-    with SyncCrazyflie(URI, cf=Crazyflie(rw_cache="./cache")) as scf:
+    uri = get_uri()
+    print(f"Connecting to {uri}...")
+    with SyncCrazyflie(uri, cf=Crazyflie(rw_cache="./cache")) as scf:
         simple_log(scf, lg_stab)
